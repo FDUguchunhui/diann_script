@@ -1,0 +1,34 @@
+#BSUB -J diann-Test
+#BSUB -W 24:00
+## change to your diann directory
+#BSUB -o /rsrch6/home/biostatistics/cgu3/diann/log
+#BSUB -e /rsrch6/home/biostatistics/cgu3/diann/error 
+## change to your rearch driver path
+#BSUB -cwd /rsrch6/home/biostatistics/cgu3 
+## type of computation node requested
+#BSUB -q medium
+## number of core requested
+#BSUB -n 28
+## maximum memory need
+#BSUB -M 168
+## minimum memory request
+##BSUB -R "rusage[mem=50]"
+## uncomment this will send a email when the task start
+##BSUB -B
+## uncomment this will send a email when the task end
+#BSUB -N
+#BSUB -u cgu3@mdanderson.org
+
+echo $(hostname)
+## change work directory to diann folder
+cd /rsrch6/home/biostatistics/cgu3/diann
+pwd
+
+## change bind information correspondingly: bind the data folder under diann root folder to mnt
+singularity exec --bind data:/mnt diann-1.9.1.img /diann-1.9.1/diann-linux \
+--f /mnt/spectrum/IPAS8000_PL375_FT_MCED_1_S4-A1_1_346.d \
+--lib /mnt/library/UNIPROT_2301_SP_HUMAN_Citrullination.predicted.speclib \
+--threads 48 --verbose 1 --out /mnt/output/PL375_FT_A1_report.tsv \
+--qvalue 0.01 --matrices --temp temp --out-lib output/PL375_FT_A1_report-lib.parquet \
+--qvalue 0.01 --matrices --temp /mnt/temp --out-lib --gen-spec-lib --unimod4 --var-mods 5 \
+--var-mod UniMod:35,15.994915,M --relaxed-prot-inf --rt-profiling --var-mod Citrullination,0.984016,R
