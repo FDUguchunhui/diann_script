@@ -1,54 +1,81 @@
 #!/bin/bash
 
-# Define the directory containing the files
-working_dirctory='/rsrch6/home/biostatistics/cgu3'
-input_directory="data"
-log_directory="/rsrch6/home/biostatistics/cgu3/diann/log"
-library_file="/mnt/library/UNIPROT_2301_SP_HUMAN_Citrullination.predicted.speclib"
-singularity_image="diann-1.9.1.img"
-lsf_directory="tasks"
+# Define the root working directory for shell script
+working_directory="/rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui"
+# Define log ouput directory for the shell script
+log_directory="/rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui/diann/log"
+singularity_image="diann/diann-1.9.1.img"
+# Define the mount directory for the diann image; it can be access through /mnt then
+mount_directory="/rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui"
+# change if necessary *****
+spectrum_folder="DIANN_Testing/BrC_CtrlF"
+# change if necessary ****
+library_file="DIANN_Testing/library/UNIPROT2301_SP_HUMAN_Hypusine.predicted.speclib"
+temp_directory="DIANN_Testing/temp"
 num_threads=48
 email="cgu3@mdanderson.org"
 
+
+# Change to the working directory and print the current directory
+cd "$working_directory" || { echo "Failed to change directory to $working_directory"; exit 1; }
+pwd  # This will print the current working directory
+
 # Ensure the output and tasks directories exist
-mkdir -p "$log_directory"
-mkdir -p "$lsf_directory"
+mkdir -p "$mount_directory"/"$log_directory"
+mkdir -p "$mount_directory"/"$lsf_directory"
+
+
+basename=${library_file##*/}       # Remove the directory part
+library_name=${basename%%.*}             # Remove the file extension
+spectrum_folder_name=${spectrum_folder##*/}
+task_name="${spectrum_folder_name}_${library_name}"
+# combine spectrum_folder_name with library_name
+output_directory="DIANN_Testing/output/$task_name"
+# Define the directory to save created LSF script
+lsf_directory="diann/tasks/$task_name"
+mkdir -p $lsf_directory
 
 # Loop through each .d file in the specified directory
-for file in "$working_dirctory"/"$input_directory"/spectrum/*.d; do
+for file in "$spectrum_folder"/*.d; do
     # Extract the base filename without path
     filename=$(basename "$file")
-    
+    # create output sub-directory for each file
+    output_sub_dir="$output_directory"/"${filename%.d}"
+    temp_sub_dir="$temp_directory"/"${filename%.d}"
+    mkdir -p "$mount_directory"/"$output_sub_dir"
+    mkdir -p "$mount_directory"/"$temp_sub_dir"
     # Create a job script for each file
-    job_script="#BSUB -J diann-${filename%.d}
+    job_script="#BSUB -J diann-"${filename%.d}"
 #BSUB -W 24:00
-#BSUB -o $log_directory/${filename%.d}.out
-#BSUB -e $log_directory/${filename%.d}.err
-#BSUB -cwd /rsrch6/home/biostatistics/cgu3
+#BSUB -o "$log_directory"/"${filename%.d}".out
+#BSUB -e "$log_directory"/"${filename%.d}".err
+#BSUB -cwd "$working_directory"
 #BSUB -q medium
 #BSUB -n 28
 #BSUB -M 168
 #BSUB -R \"rusage[mem=50]\"
-#BSUB -B
-#BSUB -N
-#BSUB -u $email
+# Don't send email when job start to avoid too many emails when run in batch
+##BSUB -B 
+# Don't send email when job end
+##BSUB -N
+#BSUB -u "$email"
 
 echo \$(hostname)
-cd /rsrch6/home/biostatistics/cgu3/diann
 pwd
 
 # Run DIANN
-singularity exec --bind $input_directory:/mnt $singularity_image /diann-1.9.1/diann-linux \
---f /mnt/spectrum/$filename \
---lib $library_file \
---threads $num_threads --verbose 1 \
---out /mnt/output/${filename%.d}_report.tsv --qvalue 0.01 --matrices --temp temp \
---out-lib output/${filename%.d}_report-lib.parquet --qvalue 0.01 --matrices \
---temp /mnt/temp --out-lib --gen-spec-lib --unimod4 --var-mods 5 \
---var-mod UniMod:35,15.994915,M --relaxed-prot-inf --rt-profiling --var-mod Citrullination,0.984016,R"
+singularity exec --bind "$mount_directory":/mnt "$singularity_image" /diann-1.9.1/diann-linux \\
+--f /mnt/"$spectrum_folder"/"$filename" \\
+--lib /mnt/"$library_file" \\
+--threads "$num_threads" --verbose 1 \\
+--out /mnt/"$output_sub_dir"/"${filename%.d}"_report.tsv --qvalue 0.01 --matrices \\
+--out-lib /mnt/"$output_sub_dir"/"${filename%.d}"_report-lib.parquet --qvalue 0.01 --matrices \\
+--temp /mnt/"$temp_sub_dir" --out-lib --gen-spec-lib --unimod4 --var-mods 5 \\
+--relaxed-prot-inf --rt-profiling --var-mod Hypusine,87.068414,K --var-mod Deoxyhypusine,71.073499,K"
 
     # Write the job script to a file
     echo "$job_script" > "$lsf_directory/${filename%.d}_job.lsf"
+    echo "$lsf_directory/${filename%.d}_job.lsf created"
 done
 
-echo "Job scripts created for all .d files in $input_directory."
+echo "Job scripts created for all .d files in $mount_directory."
