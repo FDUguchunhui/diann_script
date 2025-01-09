@@ -1,16 +1,14 @@
 #BSUB -J diann-PHOSPHOSTY
-#BSUB -W 24:00 
+#BSUB -W 48:00 
 #BSUB -o diann/log/library.out
 #BSUB -e diann/log/library.err
 #BSUB -cwd /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui
-#BSUB -q medium
+#BSUB -q long
 #BSUB -n 28
-#BSUB -M 168
-#BSUB -R "rusage[mem=50]"
-# Don't send email when job start to avoid too many emails when run in batch
-##BSUB -B 
-# Don't send email when job end
-##BSUB -N
+#BSUB -M 350
+#BSUB -R "rusage[mem=169]"
+#BSUB -B 
+#BSUB -N
 #BSUB -u cgu3@mdanderson.org
 
 echo $(hostname)
@@ -18,15 +16,23 @@ pwd
 
 # run diann
 singularity exec --bind /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui:/mnt diann/diann-1.9.1.img /diann-1.9.1/diann-linux \
---lib "" --threads 16 --verbose 1 
-# double check
---out "/mnt/DIANN_Testing/library/UNIPROT_2401_HUMAN_PHOSPHOSTY_report.tsv" 
---qvalue 0.01 --matrices  
-# double check
---out-lib "/mnt/DIANN_Testing/library/UNIPROT_2401_HUMAN_PHOSPHOSTY_report-lib.parquet" --gen-spec-lib --predictor --prosit 
-# double check
---fasta "/mnt/DIANN_Testing/library/uniprotkb_proteome_UP000005640_AND_revi_2024_11_25.fasta" 
---fasta-search --min-fr-mz 200 --max-fr-mz 1800 --met-excision --min-pep-len 7 --max-pep-len 52 
---min-pr-mz 300 --max-pr-mz 1800 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 
---unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --var-mod UniMod:21,79.966331,STY 
---peptidoforms --relaxed-prot-inf --rt-profiling 
+--threads 48 --verbose 1 \
+--out "/mnt/DIANN_Testing/library/UNIPROT_2401_HUMAN_PHOSPHOSTY_report.tsv" \
+--qvalue 0.01 --matrices \
+--out-lib "/mnt/DIANN_Testing/library/UNIPROT_2401_HUMAN_PHOSPHOSTY_report-lib.parquet" --gen-spec-lib --predictor --prosit \
+--fasta "/mnt/DIANN_Testing/library/uniprotkb_proteome_UP000005640_AND_revi_2024_11_25.fasta" \
+--fasta-search --min-fr-mz 200 --max-fr-mz 1800 --met-excision --min-pep-len 7 --max-pep-len 52 \
+--min-pr-mz 300 --max-pr-mz 1800 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 \
+--unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --var-mod UniMod:21,79.966331,STY \
+--peptidoforms --relaxed-prot-inf --rt-profiling
+
+singularity exec --bind /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui:/mnt diann/diann-1.9.1.img /diann-1.9.1/diann-linux \
+--f /mnt/DIANN_Testing/IPAS8000/IPAS8001_PL396_IgB_V074_S4-F10_1_2684.d \
+--threads 48 --verbose 1 \
+--out /mnt/DIANN_Testing/output/IPAS8000_diann37_UNIPROT_human_revi_2024_12_19_ProteinAG/IPAS8001_PL396_IgB_V074_S4-F10_1_2684/IPAS8001_PL396_IgB_V074_S4-F10_1_2684_report.tsv \
+--qvalue 0.01 --matrices \
+--temp  /mnt/DIANN_Testing/temp/IPAS8001_PL396_IgB_V074_S4-F10_1_2684 \
+--out-lib /mnt/DIANN_Testing/output/IPAS8000_diann37_UNIPROT_human_revi_2024_12_19_ProteinAG/IPAS8001_PL396_IgB_V074_S4-F10_1_2684/IPAS8001_PL396_IgB_V074_S4-F10_1_2684_report-lib.parquet \
+--gen-spec-lib --predictor \
+--fasta /mnt/DIANN_Testing/library/UNIPROT_human_revi_2024_12_19_ProteinAG.fasta --fasta-search \
+--min-fr-mz 200 --max-fr-mz 2000 --min-pep-len 7 --max-pep-len 52 --min-pr-mz 200 --max-pr-mz 2000 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 --unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --mass-acc 10 --mass-acc-ms1 15 --reanalyse --relaxed-prot-inf --rt-profiling --var-mod UniMod:37,42.046950,KR
