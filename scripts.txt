@@ -1,7 +1,11 @@
+# build image from the dockfile
 docker build --platform linux/x86_64 -t diann-1.9.2 .
+# export the image
 docker save -o diann-1.9.2.tar diann-1.9.2
 # docker run --platform linux/x86_64 diann-1.9.2 /diann-1.9.2/diann-linux
+# create singularity image from docker exported tar file
 singularity build diann-1.9.2.img docker-archive://diann-1.9.2.tar
+# execute singularity image
 singularity exec diann-1.9.2.img /diann-1.9.2/diann-linux -v
 
 bsub -Is -q interactive -W 1:00 -M 64 -R rusage[mem=64] /bin/bash
@@ -11,3 +15,16 @@ singularity exec --bind /data:/mnt diann-1.9.1.img ls /mnt
 
 singularity exec --bind data:/mnt diann-1.9.1.img /diann-1.9.1/diann-linux --f /mnt/spectrum/IPAS8000_PL375_FT_MCED_1_S4-A1_1_346.d --lib /mnt/library/UNIPROT_2301_SP_HUMAN_Citrullination.predicted.speclib --threads 48 --verbose 1 --out /mnt/output/PL375_FT_A1_report.tsv  --qvalue 0.01 --matrices --temp temp --out-lib output/PL375_FT_A1_report-lib.parquet  --qvalue 0.01 --matrices --temp /mnt/temp --out-lib --gen-spec-lib --unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --relaxed-prot-inf --rt-profiling --var-mod Citrullination,0.984016,R
 
+# export all current job and kill them
+bjobs | awk 'NR>1 {print $1}' | xargs bkill
+
+
+# to create jobs
+sh diann/create_job.sh -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -f DIANN_Testing/data/IPAS8000 -l DIANN_Testing/library/UNIPROT_2301_SP_HUMAN_Citrullination.predicted.speclib -p "--unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --relaxed-prot-inf --rt-profiling --var-mod Citrullination,0.984016,R"
+
+
+# or if you have make it executable and add path-to-it PATH evironment
+create_job.sh -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -f DIANN_Testing/data/IPAS8000 -l DIANN_Testing/library/UNIPROT_2301_SP_HUMAN_Citrullination.predicted.speclib -p "--unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --relaxed-prot-inf --rt-profiling --var-mod Citrullination,0.984016,R"
+
+# to run all lsf jobs in a folder
+sh diann/run_batch.sh  diann/tasks/IPAS8001_UNIPROT_2301_SP_HUMAN_Citrullination
