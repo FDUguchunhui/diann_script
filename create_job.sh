@@ -1,16 +1,24 @@
 #!/bin/bash
 
+# Default values for arguments
+spectrum_folder="DIANN_Testing/BrC_CtrlF"
+library_file="DIANN_Testing/library/UNIPROT2301_SP_HUMAN_Hypusine.predicted.speclib"
+
+# Parse command-line arguments
+while getopts "s:l:" opt; do
+  case $opt in
+    s) spectrum_folder="$OPTARG" ;;
+    l) library_file="$OPTARG" ;;
+    \?) echo "Invalid option -$OPTARG" >&2; exit 1 ;;
+  esac
+done
+
+
 # Define the root working directory for shell script
 working_directory="/rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui"
-# Define log ouput directory for the shell script
-log_directory="/rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui/diann/log"
-singularity_image="diann/diann-1.9.1.img"
+singularity_image="diann/diann-1.9.2.img"
 # Define the mount directory for the diann image; it can be access through /mnt then
 mount_directory="/rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui"
-# change if necessary *****
-spectrum_folder="DIANN_Testing/BrC_CtrlF"
-# change if necessary ****
-library_file="DIANN_Testing/library/UNIPROT2301_SP_HUMAN_Hypusine.predicted.speclib"
 temp_directory="DIANN_Testing/temp"
 num_threads=48
 email="cgu3@mdanderson.org"
@@ -47,13 +55,13 @@ for file in "$spectrum_folder"/*.d; do
     # Create a job script for each file
     job_script="#BSUB -J diann-"${filename%.d}"
 #BSUB -W 24:00
-#BSUB -o "$log_directory"/"${filename%.d}".out
-#BSUB -e "$log_directory"/"${filename%.d}".err
+#BSUB -o "$output_sub_dir"/"std_out.txt"
+#BSUB -e "$output_sub_dir"/"std_err.txt"
 #BSUB -cwd "$working_directory"
 #BSUB -q medium
 #BSUB -n 28
-#BSUB -M 168
-#BSUB -R \"rusage[mem=50]\"
+#BSUB -M 350
+#BSUB -R \"rusage[mem=100]\"
 # Don't send email when job start to avoid too many emails when run in batch
 ##BSUB -B 
 # Don't send email when job end
@@ -64,7 +72,7 @@ echo \$(hostname)
 pwd
 
 # Run DIANN
-singularity exec --bind "$mount_directory":/mnt "$singularity_image" /diann-1.9.1/diann-linux \\
+singularity exec --bind "$mount_directory":/mnt "$singularity_image" /diann-1.9.2/diann-linux \\
 --f /mnt/"$spectrum_folder"/"$filename" \\
 --lib /mnt/"$library_file" \\
 --threads "$num_threads" --verbose 1 \\
@@ -78,4 +86,4 @@ singularity exec --bind "$mount_directory":/mnt "$singularity_image" /diann-1.9.
     echo "$lsf_directory/${filename%.d}_job.lsf created"
 done
 
-echo "Job scripts created for all .d files in $mount_directory."
+echo "Job scripts created for all .d files in $spectrum_folder."

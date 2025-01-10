@@ -11,8 +11,9 @@ mount_directory="/rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui"
 fasta_file="DIANN_Testing/library/UNIPROT_human_revi_2024_12_19_ProteinAG.fasta"
 ptm_name="diann37"
 temp_directory="DIANN_Testing/temp"
+output_directory="DIANN_Testing/output/"
 num_threads=48
-search_params="--min-fr-mz 200 --max-fr-mz 2000 --min-pep-len 7 --max-pep-len 52 --min-pr-mz 200 --max-pr-mz 2000 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 --unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --mass-acc 10 --mass-acc-ms1 15 --reanalyse --relaxed-prot-inf --rt-profiling --var-mod UniMod:37,42.046950,KR"
+search_params="--min-fr-mz 200 --max-fr-mz 2000 --min-pep-len 7 --max-pep-len 52 --min-pr-mz 200 --max-pr-mz 2000 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 --unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --mass-acc 10 --mass-acc-ms1 15 --relaxed-prot-inf --rt-profiling --var-mod UniMod:37,42.046950,KR"
 email="cgu3@mdanderson.org"
 
 
