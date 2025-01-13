@@ -1,0 +1,22 @@
+
+#BSUB -cwd "/rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui"
+
+mkdir -p "DIANN_Testing/output/test"
+mkdir -p "DIANN_Testing/temp/test"
+# overwrite log instead of appending
+touch DIANN_Testing/output/test/std_out.txt
+touch DIANN_Testing/output/test/std_err.txt
+
+#BSUB -J diann-"IPAS8001_PL395_IgB_EPV537_S2-A5_1_2433"
+#BSUB -o "DIANN_Testing/output/test/std_out.txt"
+#BSUB -e "DIANN_Testing/output/test/std_err.txt"
+#BSUB -W 240:00
+#BSUB -q long
+#BSUB -n 28
+#BSUB -M 350
+#BSUB -R "rusage[mem=100]"
+# Don't send email when job start to avoid too many emails when run in batch
+##BSUB -B 
+# Don't send email when job end
+##BSUB -N
+#BSUB -u "cgu3@mdanderson.org"

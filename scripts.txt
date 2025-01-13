@@ -20,11 +20,32 @@ bjobs | awk 'NR>1 {print $1}' | xargs bkill
 
 
 # to create jobs
-sh diann/create_job.sh -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -f DIANN_Testing/data/IPAS8000 -l DIANN_Testing/library/UNIPROT_2301_SP_HUMAN_Citrullination.predicted.speclib -p "--unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --relaxed-prot-inf --rt-profiling --var-mod Citrullination,0.984016,R"
-
+sh diann/create_job.sh -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/data/BrC_CtrlF -l DIANN_Testing/library/UNIPROT_2301_SP_HUMAN_Citrullination.predicted.speclib -p "--unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --relaxed-prot-inf --rt-profiling --var-mod Citrullination,0.984016,R"
 
 # or if you have make it executable and add path-to-it PATH evironment
-create_job.sh -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -f DIANN_Testing/data/IPAS8000 -l DIANN_Testing/library/UNIPROT_2301_SP_HUMAN_Citrullination.predicted.speclib -p "--unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --relaxed-prot-inf --rt-profiling --var-mod Citrullination,0.984016,R"
+# for Citrullination
+create_job.sh -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/data/BrC_CtrlF -l DIANN_Testing/library/UNIPROT_2301_SP_HUMAN_Citrullination.predicted.speclib -p "--unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --relaxed-prot-inf --rt-profiling --var-mod Citrullination,0.984016,R"
+
+# for Hypusine
+create_job.sh -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/data/BrC_CtrlF -l DIANN_Testing/library/UNIPROT2301_SP_HUMAN_Hypusine.predicted.speclib -p "--unimod4 --var-mods 5 --relaxed-prot-inf --rt-profiling --var-mod Hypusine,87.068414,K --var-mod Deoxyhypusine,71.073499,K"
+
+# for unimod37_phosphoSTY
+create_job.sh -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 350 -f DIANN_Testing/data/BrC_CtrlF -l DIANN_Testing/library/UNIPROT_human_revi_2024_12_19_ProteinAG_unimod37_phosphoSTY.predicted.speclib -p "--unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --relaxed-prot-inf --rt-profiling --var-mod UniMod:37,42.046950,KR"
+
+# for diann21phosph
+create_job.sh -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/data/BrC_CtrlF -l DIANN_Testing/library/UNIPROT_human_revi_2024_12_19_ProteinAG_unimod37_phosphoSTY.predicted.speclib -p "--unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --relaxed-prot-inf --rt-profiling --var-mod UniMod:21,79.966331,STY"
+
+
 
 # to run all lsf jobs in a folder
 sh diann/run_batch.sh  diann/tasks/IPAS8001_UNIPROT_2301_SP_HUMAN_Citrullination
+
+# the largest file in BrC_CtrlF
+#  DIANN_Testing/data/BrC_CtrlF/IPAS8000_PL380_IgB_MCED_449_S4-H7_1_1695.d
+# diann/tasks/BrC_CtrlF_UNIPROT_2301_SP_HUMAN_Citrullination/
+IPAS8000_PL380_IgB_MCED_449_S4-H7_1_1695.lsf
+du -sh DIANN_Testing/data/BrC_CtrlF/* | sort 
+
+# check std out and err
+less DIANN_Testing/output/BrC_CtrlF_UNIPROT_2301_SP_HUMAN_Citrullination/IPAS8000_PL380_IgB_MCED_449_S4-H7_1_1695/std_out.txt
+less DIANN_Testing/output/BrC_CtrlF_UNIPROT_2301_SP_HUMAN_Citrullination/IPAS8000_PL380_IgB_MCED_449_S4-H7_1_1695/std_err.txt
