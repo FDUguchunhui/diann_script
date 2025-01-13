@@ -93,7 +93,7 @@ touch "$output_sub_dir/std_err.txt"
 #BSUB -q long
 #BSUB -n 28
 #BSUB -M 350
-#BSUB -R \"rusage[mem=$min_memory]\"
+#BSUB -R \"rusage[mem=${min_memory}]\"
 # Don't send email when job start to avoid too many emails when run in batch
 ##BSUB -B 
 # Don't send email when job end
@@ -106,13 +106,13 @@ pwd
 echo \"raw data size (mb): $file_size\"
 
 # Run DIANN
-singularity exec --bind \"$working_directory\":/mnt \"$singularity_image\" /diann-1.9.2/diann-linux \\
---f /mnt/\"$file_folder/$filename\" \\
---lib /mnt/\"$library_file\" \\
---threads \"$num_threads\" --verbose 1 \\
---out /mnt/\"$output_sub_dir/${filename%.d}\"_report.tsv --qvalue 0.01 --matrices \\
---out-lib /mnt/\"$output_sub_dir/${filename%.d}\"_report-lib.parquet --qvalue 0.01 --matrices \\
---temp /mnt/\"$temp_sub_dir\" --gen-spec-lib \\
+singularity exec --bind \"${working_directory}:/mnt\" \"${singularity_image}\" /diann-1.9.2/diann-linux \\
+--f /\"mnt/${file_folder}/${filename}\" \\
+--lib \"/mnt/${library_file}\" \\
+--threads ${num_threads} --verbose 1 \\
+--out \"/mnt/${output_sub_dir}/${filename%.d}_report.tsv\" --qvalue 0.01 --matrices \\
+--out-lib \"/mnt/${output_sub_dir}/${filename%.d}_report-lib.parquet\" --qvalue 0.01 --matrices \\
+--temp \"/mnt/${temp_sub_dir}\" --gen-spec-lib \\
 \"${ptm_params}\"
 "
 

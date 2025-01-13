@@ -49,3 +49,10 @@ du -sh DIANN_Testing/data/BrC_CtrlF/* | sort
 # check std out and err
 less DIANN_Testing/output/BrC_CtrlF_UNIPROT_2301_SP_HUMAN_Citrullination/IPAS8000_PL380_IgB_MCED_449_S4-H7_1_1695/std_out.txt
 less DIANN_Testing/output/BrC_CtrlF_UNIPROT_2301_SP_HUMAN_Citrullination/IPAS8000_PL380_IgB_MCED_449_S4-H7_1_1695/std_err.txt
+
+# check status
+bpeek [jobid]
+
+
+# create PTM searching library
+diann/create_spec_lib.sh  -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/library/UNIPROT_human_revi_2024_12_19_ProteinAG.fasta -n diann37 -p "--min-fr-mz 200 --max-fr-mz 2000 --min-pep-len 7 --max-pep-len 52 --min-pr-mz 200 --max-pr-mz 2000 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 --unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --mass-acc 10 --mass-acc-ms1 15 --relaxed-prot-inf --rt-profiling --var-mod UniMod:37,42.046950,KR"
