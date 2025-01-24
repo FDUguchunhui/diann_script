@@ -28,7 +28,7 @@ done
 
 # other parameters
 temp_directory="DIANN_Testing/temp"
-output_directory="DIANN_Testing/output"
+output_directory="DIANN_Testing/output/library_generation"
 singularity_image="diann/diann-1.9.2.img"
 num_threads=48
 email="cgu3@mdanderson.org"
@@ -55,7 +55,7 @@ mkdir -p $lsf_directory
 job_script="
 #BSUB -cwd \"${working_directory}\"
 
-mkdir -p \"${output_directory}\"
+mkdir -p \"${output_sub_dir}\"
 mkdir -p \"${temp_sub_dir}\"
 # overwrite log instead of appending
 rm "$output_sub_dir/std_out.txt"

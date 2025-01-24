@@ -18,41 +18,8 @@ singularity exec --bind data:/mnt diann-1.9.1.img /diann-1.9.1/diann-linux --f /
 # export all current job and kill them
 bjobs | awk 'NR>1 {print $1}' | xargs bkill
 
+# remove results from .d < 100M
+xargs rm -r < /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui/DIANN_Testing/data/BrC_CtrlF/file_less_100M.txt
 
-# to create jobs
-sh diann/create_job.sh -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/data/BrC_CtrlF -l DIANN_Testing/library/UNIPROT_2301_SP_HUMAN_Citrullination.predicted.speclib -p "--unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --relaxed-prot-inf --rt-profiling --var-mod Citrullination,0.984016,R"
-
-# or if you have make it executable and add path-to-it PATH evironment
-# for Citrullination
-create_job.sh -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/data/BrC_CtrlF -l DIANN_Testing/library/UNIPROT_2301_SP_HUMAN_Citrullination.predicted.speclib -p "--unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --relaxed-prot-inf --rt-profiling --var-mod Citrullination,0.984016,R"
-
-# for Hypusine
-create_job.sh -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/data/BrC_CtrlF -l DIANN_Testing/library/UNIPROT2301_SP_HUMAN_Hypusine.predicted.speclib -p "--unimod4 --var-mods 5 --relaxed-prot-inf --rt-profiling --var-mod Hypusine,87.068414,K --var-mod Deoxyhypusine,71.073499,K"
-
-# for unimod37_phosphoSTY
-create_job.sh -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 350 -f DIANN_Testing/data/BrC_CtrlF -l DIANN_Testing/library/UNIPROT_human_revi_2024_12_19_ProteinAG_unimod37_phosphoSTY.predicted.speclib -p "--unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --relaxed-prot-inf --rt-profiling --var-mod UniMod:37,42.046950,KR"
-
-# for diann21phosph
-create_job.sh -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/data/BrC_CtrlF -l DIANN_Testing/library/UNIPROT_human_revi_2024_12_19_ProteinAG_unimod37_phosphoSTY.predicted.speclib -p "--unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --relaxed-prot-inf --rt-profiling --var-mod UniMod:21,79.966331,STY"
-
-
-
-# to run all lsf jobs in a folder
-sh diann/run_batch.sh  diann/tasks/IPAS8001_UNIPROT_2301_SP_HUMAN_Citrullination
-
-# the largest file in BrC_CtrlF
-#  DIANN_Testing/data/BrC_CtrlF/IPAS8000_PL380_IgB_MCED_449_S4-H7_1_1695.d
-# diann/tasks/BrC_CtrlF_UNIPROT_2301_SP_HUMAN_Citrullination/
-IPAS8000_PL380_IgB_MCED_449_S4-H7_1_1695.lsf
-du -sh DIANN_Testing/data/BrC_CtrlF/* | sort 
-
-# check std out and err
-less DIANN_Testing/output/BrC_CtrlF_UNIPROT_2301_SP_HUMAN_Citrullination/IPAS8000_PL380_IgB_MCED_449_S4-H7_1_1695/std_out.txt
-less DIANN_Testing/output/BrC_CtrlF_UNIPROT_2301_SP_HUMAN_Citrullination/IPAS8000_PL380_IgB_MCED_449_S4-H7_1_1695/std_err.txt
-
-# check status
-bpeek [jobid]
-
-
-# create PTM searching library
-diann/create_spec_lib.sh  -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/library/UNIPROT_human_revi_2024_12_19_ProteinAG.fasta -n diann37 -p "--min-fr-mz 200 --max-fr-mz 2000 --min-pep-len 7 --max-pep-len 52 --min-pr-mz 200 --max-pr-mz 2000 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 --unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --mass-acc 10 --mass-acc-ms1 15 --relaxed-prot-inf --rt-profiling --var-mod UniMod:37,42.046950,KR"
+# batch processing 
+sh diann/run_batch.sh diann/tasks/BrC_CtrlF_UNIPROT_human_revi_2024_12_19_ProteinAG_hypusine_report-lib
