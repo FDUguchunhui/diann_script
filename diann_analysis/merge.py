@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 import pandas as pd
 
-def read_csv_filename(filename: Path, input_dir: Path) -> pd.DataFrame:
+def read_csv_filename(filename: Path, input_dir: Path, partial=True) -> pd.DataFrame:
     """
     Reads a TSV file and adds extra columns extracted from the filename.
 
@@ -23,9 +23,22 @@ def read_csv_filename(filename: Path, input_dir: Path) -> pd.DataFrame:
         logging.error(f"Error reading file '{filename}': {e}")
         raise
 
+    # Protein.Group   Protein.Ids     Protein.Names   Genes   PG.Quantity     PG.Normalised   PG.MaxLFQ       Genes.Quantity  Genes.Normalise
+# d        Genes.MaxLFQ    Genes.MaxLFQ.Unique     Modified.Sequence       Stripped.Sequence       Precursor.Id    Precursor.Charge        Q.Valu
+# e PEP     Global.Q.Value  Protein.Q.Value PG.Q.Value      Global.PG.Q.Value       GG.Q.Value      Translated.Q.Value      Proteotypic     Precu
+# rsor.Quantity      Precursor.Normalised    Quantity.Quality        RT      RT.Start        RT.Stop iRT     Predicted.RT    Predicted.iRT   Lib.
+# Q.Value     Lib.PG.Q.Value  Ms1.Profile.Corr        Ms1.Area        Ms1.Normalised  Normalisation.Factor    Evidence        Spectrum.Similarity
+#      Averagine       Mass.Evidence   CScore  Fragment.Quant.Raw      Fragment.Correlations   MS2.Scan        PTM.Informative PTM.Specific    PT
+# M.Localising  PTM.Q.Value     PTM.Site.Confidence     Lib.PTM.Site.Confidence
+
     # Compute relative path from input_dir (excluding file name)
     df['source'] = (input_dir.name /filename.parent.relative_to(input_dir)).as_posix()
     df = df.drop(columns=['File.Name'])
+
+    if partial:
+        df = df.drop(columns=['PG.Normalised', 'PG.MaxLFQ', 'Genes.Normalised', 
+        'Genes.MaxLFQ', 'Global.Q.Value', 'Global.PG.Q.Value', 'Precursor.Normalised', 'Lib.Q.Value', 'Lib.PG.Q.Value',
+        'Ms1.Normalised', 'Normalisation.Factor', 'Lib.PTM.Site.Confidence'])
 
     pattern = r"^([A-Z0-9]+)_([A-Z0-9]+)_([A-Z]+)_(.+?)_([A-Z0-9]+-[A-Z0-9]+)_([0-9]+_[0-9]+)$"
     ids = df['Run'].str.extract(pattern, flags=re.IGNORECASE)
@@ -49,6 +62,13 @@ def main():
         type=str,
         help='Path to the output directory where the final CSV file will be saved.'
     )
+    
+    parser.add_argument(
+        '-f', '--full',
+        action='store_true',
+        help='Whether to get all information when merge files, default is to get partial information'
+    )
+
     parser.add_argument(
         '-v', '--verbose',
         action='store_true',
@@ -61,6 +81,13 @@ def main():
         level=logging.DEBUG if args.verbose else logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
+
+    if not args.full:
+         logging.info('''You are now requesting for a merged file with partial information, which means some
+         columns will not be included. This is useful when you are combining results from a series of run using
+         only single .d file, all columns related to normalizaion, lib, and global are non-informative in this case.
+         To have all columns use "-f or --full" flag.
+         ''')
 
     input_dir = Path(args.input_dir).resolve()
     output_dir = Path(args.output_dir).resolve()
@@ -88,7 +115,7 @@ def main():
             for file in files:
                 logging.debug(f"Processing file: {file}")
                 try:
-                    df = read_csv_filename(file, input_dir)
+                    df = read_csv_filename(file, input_dir, partial=(not args.full))
                     dataframes.append(df)
                 except Exception as e:
                     logging.error(f"Failed to process file '{file}': {e}")

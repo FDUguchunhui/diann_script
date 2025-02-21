@@ -14,10 +14,10 @@ diann/create_spec_lib.sh  -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 1
 
 Assume you already set working directory as diann folder you can
 ```
-./create_spec_lib.sh -r [ROOT_PATH] -m [MIN_MEMORY_REQUIRED] -f [DATA_FOLDER_PATH_RELATIVE_TO_ROOT] -l [SEARCHING_LIBRARY_PATH_RELATIVE_TO_ROOT] -p[SEARCHING_PARAMETERS] -v [QVALUE_THRESHOLD] -M [MAX_MEMORY_REQUIRED] -o [OUTPUT_NAME] -q [QUEUE] -W [WALL_TIME]
+./create_spec_lib.sh -r ROOT_PATH -m MIN_MEMORY_REQUIRED -f DATA_FOLDER_PATH_RELATIVE_TO_ROOT -l SEARCHING_LIBRARY_PATH_RELATIVE_TO_ROOT [-p SEARCHING_PARAMETERS] [-v QVALUE_THRESHOLD] [-M MAX_MEMORY_REQUIRED] [-o OUTPUT_NAME] [-q QUEUE] [-W WALL_TIME]
 ```
 
-The "-r [ROOT_PATH] -m [MIN_MEMORY_REQUIRED] -f [DATA_FOLDER_PATH_RELATIVE_TO_ROOT] -l [SEARCHING_LIBRARY_PATH_RELATIVE_TO_ROOT] -p[SEARCHING_PARAMETERS] " are required arguments and "-v [QVALUE_THRESHOLD] -M [MAX_MEMORY_REQUIRED] -o [OUTPUT_NAME] -q [QUEUE] -W [WALL_TIME]" are optional arguments for refined control. The "-p [SEARCHING_PARAMETERS]" should be the same for the command when you create the library use in "-l [SEARCHING_PARAMETERS]", and must be quoted to avoid split by shell.
+The "-r ROOT_PATH -f DATA_FOLDER_PATH_RELATIVE_TO_ROOT -l SEARCHING_LIBRARY_PATH_RELATIVE_TO_ROOT -p SEARCHING_PARAMETERS " are required arguments and "[-m MIN_MEMORY_REQUIRED] [-v QVALUE_THRESHOLD] [-M MAX_MEMORY_REQUIRED] [-o OUTPUT_NAME] [-q QUEUE] [-W WALL_TIME]" are optional arguments for refined control. The "-p SEARCHING_PARAMETERS" should be the same for the command when you create the library use in "-l SEARCHING_PARAMETERS", and must be quoted to avoid split by shell.
 
 You can run code below to get details information about each arguments and whether they are required or optional (and default value)
 ```
@@ -60,3 +60,9 @@ to submit all tasks in a folder, here please use the lowest folder path (i.e. th
 
 
 # To merge results from multiple files
+
+Run CLI merge with two required positional arguments. If you are combining results from run using only one .d files, the merge process will automatically remove columns related to normalization, global, and lib, since those columns are only informative when you run with multiple experiment and/or using MBR(match-between-runs). You can override this behavior by using "-f" flag.
+```
+python diann_analysis/merge.py PATH_TO_FOLDER_OF_FILES OUTPUT_PATH [-f|--full]
+```
+
