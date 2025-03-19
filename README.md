@@ -61,8 +61,8 @@ to submit all tasks in a folder, here please use the lowest folder path (i.e. th
 
 # To merge results from multiple files
 
-Run CLI merge with two required positional arguments. If you are combining results from run using only one .d files, the merge process will automatically remove columns related to normalization, global, and lib, since those columns are only informative when you run with multiple experiment and/or using MBR(match-between-runs). You can override this behavior by using "-f" flag.
+Run CLI merge with two required positional arguments. If you are combining results from run using only one .d files, the merge process will automatically remove columns related to normalization, global, and lib, since those columns are only informative when you run with multiple experiment and/or using MBR(match-between-runs). You can override this behavior by using "-f" flag. By default it save merged file in tsv format. However, save in parquet format can saved a lot of space by using "--parquet" flag.
 ```
-python diann_analysis/merge.py PATH_TO_FOLDER_OF_FILES OUTPUT_PATH [-f|--full]
+python diann_analysis/merge.py PATH_TO_FOLDER_OF_FILES OUTPUT_PATH [-f|--full] [--parquet]
 ```
 

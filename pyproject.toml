@@ -1,0 +1,22 @@
+[project]
+name = "diann-analysis"
+version = "0.1.0"
+description = "Script for analyze diann output"
+authors = [
+    {name = "Chunhui Gu",email = "fduguchunhui@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+
+[tool.poetry.dependencies]
+    pyarrow = "^19.0.1"
+    pandas = "^2.2.3"
+
+[tool.poetry.scripts]
+diann_merge='diann_analysis.merge:main'
+diann_create_job='diann_analysis.create_job:main'
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
