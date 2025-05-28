@@ -59,7 +59,7 @@ def main():
     print(f"Current working directory: {os.getcwd()}")
 
     # Define LSF directory
-    lsf_directory = f"diann/tasks/{output_name}/{os.path.splitext(os.path.basename(library_file))[0]}"
+    lsf_directory = f"diann/tasks/{output_name}/{os.path.basename(library_file)}"
     os.makedirs(lsf_directory, exist_ok=True)
     os.makedirs(os.path.join(working_directory, lsf_directory), exist_ok=True)
 

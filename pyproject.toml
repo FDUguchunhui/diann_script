@@ -15,6 +15,7 @@ requires-python = ">=3.11"
 [tool.poetry.scripts]
 diann_merge='diann_analysis.merge:main'
 diann_create_job='diann_analysis.create_job:main'
+diann_create_spec_lib='diann_analysis.create_lib_job:main'
 
 
 [build-system]
