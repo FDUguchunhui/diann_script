@@ -16,12 +16,12 @@ This section describes how to use the different scripts provided in this project
 
 ### 1. Creating a Searching Library
 
-The `diann/create_spec_lib.sh` script is used to create a spectral library. The generated library will be named based on the original FASTA file and the targeted PTM, e.g., `[FASTA_FILE_USED]_[CUSTOMIZED_NAME]_report-lib.predicted.speclib`.
+The `create_lib_job` CLI command is used to create a spectral library. The generated library will be named based on the original FASTA file and the targeted PTM, e.g., `[FASTA_FILE_USED]_[CUSTOMIZED_NAME]_report-lib.predicted.speclib`.
 
 **Command Syntax:**
 
 ```bash
-diann/create_spec_lib.sh -r ROOT_PATH -m MIN_MEMORY_REQUIRED -f FASTA_FILE_PATH_RELATIVE_TO_ROOT -n CUSTOMIZED_NAME [-p SEARCHING_PARAMETERS]
+create_lib_job -r ROOT_PATH -m MIN_MEMORY_REQUIRED -f FASTA_FILE_PATH_RELATIVE_TO_ROOT -n CUSTOMIZED_NAME [-p SEARCHING_PARAMETERS]
 ```
 
 **Arguments:**
@@ -35,17 +35,17 @@ diann/create_spec_lib.sh -r ROOT_PATH -m MIN_MEMORY_REQUIRED -f FASTA_FILE_PATH_
 **Example:**
 
 ```bash
-diann/create_spec_lib.sh  -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/library/UNIPROT_human_revi_2024_12_19_ProteinAG.fasta -n citrullination -p "--min-fr-mz 200 --max-fr-mz 2000 --min-pep-len 7 --max-pep-len 52 --min-pr-mz 200 --max-pr-mz 2000 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 --unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --mass-acc 10 --mass-acc-ms1 15 --relaxed-prot-inf --rt-profiling --var-mod Citrullination,0.984016,R"
+create_lib_job -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/library/UNIPROT_human_revi_2024_12_19_ProteinAG.fasta -n citrullination -p "--min-fr-mz 200 --max-fr-mz 2000 --min-pep-len 7 --max-pep-len 52 --min-pr-mz 200 --max-pr-mz 2000 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 --unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --mass-acc 10 --mass-acc-ms1 15 --relaxed-prot-inf --rt-profiling --var-mod Citrullination,0.984016,R"
 ```
 
 ### 2. Creating Jobs for .d Files
 
-The `./create_job.sh` script creates task files for each `.d` file in a specified folder. These task files are placed in the `diann/tasks` directory.
+The `create_job` CLI command creates task files for each `.d` file in a specified folder. These task files are placed in the `diann/tasks` directory.
 
 **Command Syntax:**
 
 ```bash
-./create_job.sh -r ROOT_PATH -m MIN_MEMORY_REQUIRED -f DATA_FOLDER_PATH_RELATIVE_TO_ROOT -l SEARCHING_LIBRARY_PATH_RELATIVE_TO_ROOT [-p SEARCHING_PARAMETERS] [-v QVALUE_THRESHOLD] [-M MAX_MEMORY_REQUIRED] [-o OUTPUT_NAME] [-q QUEUE] [-W WALL_TIME]
+create_job -r ROOT_PATH -m MIN_MEMORY_REQUIRED -f DATA_FOLDER_PATH_RELATIVE_TO_ROOT -l SEARCHING_LIBRARY_PATH_RELATIVE_TO_ROOT [-p SEARCHING_PARAMETERS] [-v QVALUE_THRESHOLD] [-M MAX_MEMORY_REQUIRED] [-o OUTPUT_NAME] [-q QUEUE] [-W WALL_TIME]
 ```
 
 **Arguments:**
@@ -64,7 +64,7 @@ The `./create_job.sh` script creates task files for each `.d` file in a specifie
 To get detailed information about each argument, run:
 
 ```bash
-./create_spec_lib.sh -h
+create_job -h
 ```
 
 **Task File Structure:**
@@ -87,7 +87,7 @@ DIANN results will be saved in `DIANN_Testing/output` with a structure mirroring
 **Example:**
 
 ```bash
-diann/create_job.sh -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/data/RAINBOW -l DIANN_Testing/library/UNIPROT_human_revi_2024_12_19_ProteinAG_citrullination_report-lib.predicted.speclib -p "--min-fr-mz 200 --max-fr-mz 2000 --min-pep-len 7 --max-pep-len 52 --min-pr-mz 200 --max-pr-mz 2000 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 --unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --mass-acc 10 --mass-acc-ms1 15 --relaxed-prot-inf --rt-profiling --var-mod Citrullination,0.984016,R"
+create_job -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/data/RAINBOW -l DIANN_Testing/library/UNIPROT_human_revi_2024_12_19_ProteinAG_citrullination_report-lib.predicted.speclib -p "--min-fr-mz 200 --max-fr-mz 2000 --min-pep-len 7 --max-pep-len 52 --min-pr-mz 200 --max-pr-mz 2000 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 --unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --mass-acc 10 --mass-acc-ms1 15 --relaxed-prot-inf --rt-profiling --var-mod Citrullination,0.984016,R"
 ```
 
 ### 3. Running Batch Jobs
@@ -104,12 +104,12 @@ Replace `[PATH_TO_TASK_FOLDER]` with the path to the lowest-level task folder (t
 
 ### 4. Merging Results
 
-The `diann_analysis/merge.py` script is used to merge results from multiple files.
+The `merge` CLI command is used to merge results from multiple files.
 
 **Command Syntax:**
 
 ```bash
-python diann_analysis/merge.py PATH_TO_FOLDER_OF_FILES OUTPUT_PATH [-f|--full] [--parquet]
+merge PATH_TO_FOLDER_OF_FILES OUTPUT_PATH [-f|--full] [--parquet]
 ```
 
 **Arguments:**
