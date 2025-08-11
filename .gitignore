@@ -4,3 +4,5 @@ error/
 log/
 tasks/
 diann_analysis/data/EI_key_rainbow.xlsx
+diann_analysis.egg-info/
+*.pyc

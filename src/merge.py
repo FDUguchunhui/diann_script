@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import argparse
+import click
 import logging
 import re
 from pathlib import Path
@@ -39,61 +39,29 @@ def read_csv_filename(filename: Path, input_dir: Path, partial=True) -> pd.DataF
 
     return df
 
-def main():
-    parser = argparse.ArgumentParser(
-        description='Process TSV report files from an input directory and combine them into a single output file.'
-    )
-    parser.add_argument(
-        'input_dir',
-        type=str,
-        help='Path to the input directory containing TSV report files.'
-    )
-    parser.add_argument(
-        'output_dir',
-        type=str,
-        help='Path to the output directory where the final file will be saved.'
-    )
-    
-    parser.add_argument(
-        '-f', '--full',
-        action='store_true',
-        help='Whether to get all information when merging files; default is partial information.'
-    )
-
-    parser.add_argument(
-        '-v', '--verbose',
-        action='store_true',
-        help='Enable verbose logging output.'
-    )
-    
-    parser.add_argument(
-        '--parquet',
-        action='store_true',
-        help='Save the output file as CSV instead of Parquet.'
-    )
-    
-    args = parser.parse_args()
+def main(input_dir, output_dir, full, verbose, parquet):
+    """Process TSV report files from an input directory and combine them into a single output file."""
 
     logging.basicConfig(
-        level=logging.DEBUG if args.verbose else logging.INFO,
+        level=logging.DEBUG if verbose else logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
 
-    if not args.full:
+    if not full:
         logging.info('''You are now requesting a merged file with partial information, which means some
         columns will not be included. To have all columns use "-f or --full" flag.''')
 
-    input_dir = Path(args.input_dir).resolve()
-    output_dir = Path(args.output_dir).resolve()
+    input_path = Path(input_dir).resolve()
+    output_path = Path(output_dir).resolve()
 
-    if not input_dir.is_dir():
-        logging.error(f"Input directory '{input_dir}' does not exist or is not a directory.")
+    if not input_path.is_dir():
+        click.echo(f"Error: Input directory '{input_path}' does not exist or is not a directory.", err=True)
         return
 
     dataframes = []
     empty_folders = []
 
-    for folder in input_dir.iterdir():
+    for folder in input_path.iterdir():
         if folder.is_dir():
             files = list(folder.glob("**/*_report.tsv"))
 
@@ -107,29 +75,43 @@ def main():
             for file in files:
                 logging.debug(f"Processing file: {file}")
                 try:
-                    df = read_csv_filename(file, input_dir, partial=(not args.full))
+                    df = read_csv_filename(file, input_path, partial=(not full))
                     dataframes.append(df)
                 except Exception as e:
                     logging.error(f"Failed to process file '{file}': {e}")
 
     if not dataframes:
-        logging.error("No data processed from input files.")
+        click.echo("Error: No data processed from input files.", err=True)
         return
 
     final_peptide = pd.concat(dataframes, ignore_index=True)
     final_peptide['batchID'] = final_peptide['plate'].astype(str) + "_" + final_peptide['well'].astype(str)
 
-    output_filename = input_dir.name + (".parquet" if args.parquet else ".csv")
-    output_file = output_dir / output_filename
+    output_filename = input_path.name + (".parquet" if parquet else ".csv")
+    output_file = output_path / output_filename
 
     try:
-        if args.parquet:
+        output_path.mkdir(parents=True, exist_ok=True)
+        if parquet:
             final_peptide.to_parquet(output_file, index=False)
         else:
             final_peptide.to_csv(output_file, index=False, sep='\t')
-        logging.info(f"Final file saved to: {output_file}")
+        click.echo(f"Final file saved to: {output_file}")
     except Exception as e:
-        logging.error(f"Error saving file to '{output_file}': {e}")
+        click.echo(f"Error saving file to '{output_file}': {e}", err=True)
+
+@click.command()
+@click.argument('input_dir', type=click.Path(exists=True, file_okay=False, dir_okay=True))
+@click.argument('output_dir', type=click.Path(file_okay=False, dir_okay=True))
+@click.option('-f', '--full', is_flag=True, 
+              help='Whether to get all information when merging files; default is partial information.')
+@click.option('-v', '--verbose', is_flag=True, 
+              help='Enable verbose logging output.')
+@click.option('--parquet', is_flag=True, 
+              help='Save the output file as Parquet instead of CSV.')
+def cli_main(input_dir, output_dir, full, verbose, parquet):
+    """Process TSV report files from an input directory and combine them into a single output file."""
+    main(input_dir, output_dir, full, verbose, parquet)
 
 if __name__ == '__main__':
-    main()
+    cli_main()

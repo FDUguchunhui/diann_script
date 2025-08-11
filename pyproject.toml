@@ -3,21 +3,24 @@ name = "diann-analysis"
 version = "0.1.0"
 description = "Script for analyze diann output"
 authors = [
-    {name = "Chunhui Gu",email = "fduguchunhui@gmail.com"}
+    {name = "Chunhui Gu", email = "fduguchunhui@gmail.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.11"
-
-[tool.poetry.dependencies]
-    pyarrow = "^19.0.1"
-    pandas = "^2.2.3"
-
-[tool.poetry.scripts]
-diann_merge='diann_analysis.merge:main'
-diann_create_job='diann_analysis.create_job:main'
-diann_create_spec_lib='diann_analysis.create_lib_job:main'
-
+dependencies = [
+    "pyarrow>=19.0.1,<20.0.0",
+    "pandas>=2.2.3,<3.0.0",
+    "click>=8.1.0,<9.0.0",
+]
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[project.scripts]
+diann-analysis = "src.cli:cli"
+
