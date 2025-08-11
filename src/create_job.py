@@ -11,14 +11,9 @@ def get_folder_size(folder):
     return total_size
 
 
-def main(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name):
+def main(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name, singularity_image, temp_dir, email):
     """Generate DIA-NN job scripts for spectrum data processing."""
     
-    # Default values
-    DEFAULT_SINGULARITY_IMAGE = "diann/diann-1.9.2.img"
-    DEFAULT_TEMP_DIR = "DIANN_Testing/temp"
-    DEFAULT_EMAIL = "cgu3@mdanderson.org"
-
     # Assign arguments
     working_directory = root
     library_file = library
@@ -32,7 +27,7 @@ def main(file_folder, library, ptm_params, root, min_memory, queue, threads, max
     click.echo(f"Current working directory: {os.getcwd()}")
 
     # Define LSF directory
-    lsf_directory = f"diann/tasks/{output_name}/{os.path.basename(library_file)}"
+    lsf_directory = f"DIANN_Testing/tasks/{output_name}/{os.path.basename(library_file)}"
     os.makedirs(lsf_directory, exist_ok=True)
     os.makedirs(os.path.join(working_directory, lsf_directory), exist_ok=True)
 
@@ -51,7 +46,7 @@ def main(file_folder, library, ptm_params, root, min_memory, queue, threads, max
     for filename in d_files:
             file_path = os.path.join(file_folder, filename)
             output_sub_dir = f"DIANN_Testing/output/{output_name}/{os.path.basename(library_file)}/{filename[:-2]}"
-            temp_sub_dir = f"{DEFAULT_TEMP_DIR}/{filename[:-2]}"
+            temp_sub_dir = f"{temp_dir}/{filename[:-2]}"
             file_size = get_folder_size(file_path) / (1024 * 1024)  # Convert to MB
 
             job_script = f"""
@@ -72,14 +67,14 @@ touch "{output_sub_dir}/std_err.txt"
 #BSUB -n {num_threads}
 #BSUB -M {max_memory}
 #BSUB -R "rusage[mem={min_memory}]"
-#BSUB -u "{DEFAULT_EMAIL}"
+#BSUB -u "{email}"
 
 echo "Current working directory"
 pwd
 echo "Raw data size (MB): {file_size}"
 
 
-singularity exec --bind "{working_directory}:/mnt" "{DEFAULT_SINGULARITY_IMAGE}" /diann-1.9.2/diann-linux \\
+singularity exec --bind "{working_directory}:/mnt" "{singularity_image}" /diann-1.9.2/diann-linux \\
 --f "/mnt/{file_folder}/{filename}" \\
 --lib "/mnt/{library_file}" \\
 --threads {num_threads} --verbose 1 \\
@@ -110,9 +105,12 @@ singularity exec --bind "{working_directory}:/mnt" "{DEFAULT_SINGULARITY_IMAGE}"
 @click.option("-W", "--wall-time", default="240:00", help="Wall time limit")
 @click.option("-v", "--qvalue", type=float, default=0.01, help="Q-value for DIA-NN")
 @click.option("-o", "--output-name", default="", help="Custom output name (default: same as file_folder name)")
-def cli_main(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name):
+@click.option("-s", "--singularity-image", default="diann/diann-1.9.2.img", help="Singularity image path")
+@click.option("-t", "--temp-dir", default="DIANN_Testing/temp", help="Temporary directory")
+@click.option("-e", "--email", default="cgu3@mdanderson.org", help="Email address for job notifications")
+def cli_main(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name, singularity_image, temp_dir, email):
     """Generate DIA-NN job scripts for spectrum data processing."""
-    main(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name)
+    main(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name, singularity_image, temp_dir, email)
 
 if __name__ == '__main__':
     cli_main()

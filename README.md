@@ -15,7 +15,7 @@ pip install -e .
 Alternatively, if you have the source code locally, navigate to the project directory and run:
 
 ```bash
-pip install -e .
+pip install git+https://github.com/FDUguchunhui/diann_script
 ```
 
 After installation, the `diann-analysis` command will be available with several subcommands.
@@ -31,7 +31,7 @@ The `diann-analysis create-lib` command is used to create a spectral library. Th
 **Command Syntax:**
 
 ```bash
-diann-analysis create-lib -r ROOT_PATH -m MEMORY -f FASTA_FILE_PATH -n LIB_NAME -p PARAMS [-o OUTPUT_PATH]
+diann-analysis create-lib -r ROOT_PATH -m MEMORY -f FASTA_FILE_PATH -n LIB_NAME -p PARAMS [-o OUTPUT_PATH] [-t TEMP_DIRECTORY] [-d OUTPUT_DIRECTORY] [-s SINGULARITY_IMAGE] [--num-threads NUM_THREADS] [-e EMAIL]
 ```
 
 **Arguments:**
@@ -42,11 +42,22 @@ diann-analysis create-lib -r ROOT_PATH -m MEMORY -f FASTA_FILE_PATH -n LIB_NAME 
 *   `-n, --lib-name LIB_NAME`: Library name identifier for the generated library (required).
 *   `-p, --params PARAMS`: DIA-NN spectrum library search parameters (required).
 *   `-o, --output OUTPUT_PATH`: Output path relative to root for the generated LSF job file (default: `diann/tasks`).
+*   `-t, --temp-directory TEMP_DIRECTORY`: Temporary directory path (default: `DIANN_Testing/temp`).
+*   `-d, --output-directory OUTPUT_DIRECTORY`: Output directory for library generation (default: `DIANN_Testing/output/library_generation`).
+*   `-s, --singularity-image SINGULARITY_IMAGE`: Singularity image path (default: `diann/diann-1.9.2.img`).
+*   `--num-threads NUM_THREADS`: Number of threads (default: 48).
+*   `-e, --email EMAIL`: Email address for job notifications (default: `cgu3@mdanderson.org`). Email are not set to be sent since tasks are run in batch.
 
 **Example:**
 
 ```bash
 diann-analysis create-lib -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/library/UNIPROT_human_revi_2024_12_19_ProteinAG.fasta -n citrullination -p "--min-fr-mz 200 --max-fr-mz 2000 --min-pep-len 7 --max-pep-len 52 --min-pr-mz 200 --max-pr-mz 2000 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 --unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --mass-acc 10 --mass-acc-ms1 15 --relaxed-prot-inf --rt-profiling --var-mod Citrullination,0.984016,R"
+```
+
+**example2**
+
+```bash
+diann-analysis create-job -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/data/PLCO -l DIANN_Testing/library/Cryptodatabase_UNIPROT2505_Human_Cryptodatabase_UNIPROT2505_Human_report-lib.predicted.speclib -p "--min-fr-mz 200 --max-fr-mz 2000 --min-pep-len 7 --max-pep-len 52 --min-pr-mz 200 --max-pr-mz 2000 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 --unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --mass-acc 10 --mass-acc-ms1 15 --relaxed-prot-inf --rt-profiling"
 ```
 
 ### 2. Creating Jobs for .d Files
@@ -56,7 +67,7 @@ The `diann-analysis create-job` command creates task files for each `.d` file in
 **Command Syntax:**
 
 ```bash
-diann-analysis create-job -f FILE_FOLDER -l LIBRARY -p PTM_PARAMS [-r ROOT] [-m MIN_MEMORY] [-q QUEUE] [-n THREADS] [-M MAX_MEMORY] [-W WALL_TIME] [-v QVALUE] [-o OUTPUT_NAME]
+diann-analysis create-job -f FILE_FOLDER -l LIBRARY -p PTM_PARAMS [-r ROOT] [-m MIN_MEMORY] [-q QUEUE] [-n THREADS] [-M MAX_MEMORY] [-W WALL_TIME] [-v QVALUE] [-o OUTPUT_NAME] [-s SINGULARITY_IMAGE] [-t TEMP_DIR] [-e EMAIL]
 ```
 
 **Arguments:**
@@ -72,6 +83,9 @@ diann-analysis create-job -f FILE_FOLDER -l LIBRARY -p PTM_PARAMS [-r ROOT] [-m 
 *   `-W, --wall-time WALL_TIME`: Wall time limit (default: `240:00`).
 *   `-v, --qvalue QVALUE`: Q-value for DIA-NN (default: 0.01).
 *   `-o, --output-name OUTPUT_NAME`: Custom output name (default: same as file_folder name).
+*   `-s, --singularity-image SINGULARITY_IMAGE`: Singularity image path (default: `diann/diann-1.9.2.img`).
+*   `-t, --temp-dir TEMP_DIR`: Temporary directory (default: `DIANN_Testing/temp`).
+*   `-e, --email EMAIL`: Email address for job notifications (default: `cgu3@mdanderson.org`).
 
 To get detailed information about each argument, run:
 

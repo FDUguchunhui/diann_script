@@ -30,9 +30,12 @@ def cli():
 @click.option("-W", "--wall-time", default="240:00", help="Wall time limit")
 @click.option("-v", "--qvalue", type=float, default=0.01, help="Q-value for DIA-NN")
 @click.option("-o", "--output-name", default="", help="Custom output name (default: same as file_folder name)")
-def create_job(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name):
+@click.option("-s", "--singularity-image", default="diann/diann-1.9.2.img", help="Singularity image path")
+@click.option("-t", "--temp-dir", default="DIANN_Testing/temp", help="Temporary directory")
+@click.option("-e", "--email", default="cgu3@mdanderson.org", help="Email address for job notifications")
+def create_job(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name, singularity_image, temp_dir, email):
     """Generate DIA-NN job scripts for spectrum data processing."""
-    create_job_main(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name)
+    create_job_main(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name, singularity_image, temp_dir, email)
 
 
 @cli.command("create-lib")
@@ -48,9 +51,19 @@ def create_job(file_folder, library, ptm_params, root, min_memory, queue, thread
               help="DIANN spectrum library search parameters.")
 @click.option("-o", "--output", default="diann/tasks", 
               help="The output path relative to the root for the generated LSF job file.")
-def create_lib(root, memory, fasta, lib_name, params, output):
+@click.option("-t", "--temp-directory", default="DIANN_Testing/temp", 
+              help="Temporary directory path")
+@click.option("-d", "--output-directory", default="DIANN_Testing/output/library_generation", 
+              help="Output directory for library generation")
+@click.option("-s", "--singularity-image", default="diann/diann-1.9.2.img", 
+              help="Singularity image path")
+@click.option("--num-threads", default=48, type=int, 
+              help="Number of threads")
+@click.option("-e", "--email", default="cgu3@mdanderson.org", 
+              help="Email address for job notifications")
+def create_lib(root, memory, fasta, lib_name, params, output, temp_directory, output_directory, singularity_image, num_threads, email):
     """Generate LSF script for DIANN library creation."""
-    create_lib_job_main(root, memory, fasta, lib_name, params, output)
+    create_lib_job_main(root, memory, fasta, lib_name, params, output, temp_directory, output_directory, singularity_image, num_threads, email)
 
 
 @cli.command("merge")

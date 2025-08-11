@@ -3,7 +3,7 @@
 import os
 import click
 
-def main(root, memory, fasta, lib_name, params, output):
+def main(root, memory, fasta, lib_name, params, output, temp_directory, output_directory, singularity_image, num_threads, email):
     """Generate LSF script for DIANN library creation. 
     
     It won't automatically execute the task. You will have to double check the LSF file 
@@ -23,14 +23,6 @@ def main(root, memory, fasta, lib_name, params, output):
     library_name = lib_name
     search_params = params
     lsf_directory = output
-
-    # Constants
-    temp_directory = "DIANN_Testing/temp"
-    output_directory = "DIANN_Testing/output/library_generation"
-    singularity_image = "diann/diann-1.9.2.img"
-    num_threads = 48
-    email = "cgu3@mdanderson.org"
- 
 
     os.makedirs(lsf_directory, exist_ok=True)
 
@@ -100,9 +92,19 @@ singularity exec --bind "{working_directory}:/mnt" "{singularity_image}" /diann-
               help="DIANN spectrum library search parameters. Only the searching parameters related to peptides are required. Other parameters are set to parameters suitable for most setting. However you can always override those settings here")
 @click.option("-o", "--output", default="diann/tasks", 
               help="The output path relative to the root for the generated LSF job file.")
-def cli_main(root, memory, fasta, lib_name, params, output):
+@click.option("-t", "--temp-directory", default="DIANN_Testing/temp", 
+              help="Temporary directory path")
+@click.option("-d", "--output-directory", default="DIANN_Testing/output/library_generation", 
+              help="Output directory for library generation")
+@click.option("-s", "--singularity-image", default="diann/diann-1.9.2.img", 
+              help="Singularity image path")
+@click.option("--num-threads", default=48, type=int, 
+              help="Number of threads")
+@click.option("-e", "--email", default="cgu3@mdanderson.org", 
+              help="Email address for job notifications")
+def cli_main(root, memory, fasta, lib_name, params, output, temp_directory, output_directory, singularity_image, num_threads, email):
     """Generate LSF script for DIANN library creation."""
-    main(root, memory, fasta, lib_name, params, output)
+    main(root, memory, fasta, lib_name, params, output, temp_directory, output_directory, singularity_image, num_threads, email)
 
 if __name__ == "__main__":
     cli_main()
