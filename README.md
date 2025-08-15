@@ -1,19 +1,17 @@
-# DIA-NN Analysis Tools (DiaSea2)
+# DIA-NN Search Tools (DiaSea2)
 
 This project provides a unified command-line interface for performing high-throughput searches using DIA-NN, including creating spectral libraries, generating job files for processing `.d` files, running batch jobs, and merging results.
 
 ## Installation
 
 To install the necessary tools, clone this repository and install it locally:
-
 ```bash
 git clone https://github.com/FDUguchunhui/diann_script
 cd diann_script
 pip install -e .
 ```
 
-Alternatively, if you have the source code locally, navigate to the project directory and run:
-
+The method above provide your extra flexibility to change and update. Alternatively, 
 ```bash
 pip install git+https://github.com/FDUguchunhui/diann_script
 ```
