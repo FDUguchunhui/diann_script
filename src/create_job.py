@@ -11,7 +11,7 @@ def get_folder_size(folder):
     return total_size
 
 
-def main(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name, singularity_image, temp_dir, email):
+def main(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name, singularity_image, temp_dir, email, tasks_dir):
     """Generate DIA-NN job scripts for spectrum data processing."""
     
     # Assign arguments
@@ -27,7 +27,7 @@ def main(file_folder, library, ptm_params, root, min_memory, queue, threads, max
     click.echo(f"Current working directory: {os.getcwd()}")
 
     # Define LSF directory
-    lsf_directory = f"DIANN_Testing/tasks/{output_name}/{os.path.basename(library_file)}"
+    lsf_directory = f"{tasks_dir}/{output_name}/{os.path.basename(library_file)}"
     os.makedirs(lsf_directory, exist_ok=True)
     os.makedirs(os.path.join(working_directory, lsf_directory), exist_ok=True)
 
@@ -108,9 +108,10 @@ singularity exec --bind "{working_directory}:/mnt" "{singularity_image}" /diann-
 @click.option("-s", "--singularity-image", default="diann/diann-1.9.2.img", help="Singularity image path")
 @click.option("-t", "--temp-dir", default="DIANN_Testing/temp", help="Temporary directory")
 @click.option("-e", "--email", default="cgu3@mdanderson.org", help="Email address for job notifications")
-def cli_main(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name, singularity_image, temp_dir, email):
+@click.option("-T", "--tasks-dir", default="DIANN_Testing/tasks", help="Tasks directory path")
+def cli_main(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name, singularity_image, temp_dir, email, tasks_dir):
     """Generate DIA-NN job scripts for spectrum data processing."""
-    main(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name, singularity_image, temp_dir, email)
+    main(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name, singularity_image, temp_dir, email, tasks_dir)
 
 if __name__ == '__main__':
     cli_main()

@@ -31,16 +31,16 @@ The `diann-analysis create-lib` command is used to create a spectral library. Th
 **Command Syntax:**
 
 ```bash
-diann-analysis create-lib -r ROOT_PATH -m MEMORY -f FASTA_FILE_PATH -n LIB_NAME -p PARAMS [-o OUTPUT_PATH] [-t TEMP_DIRECTORY] [-d OUTPUT_DIRECTORY] [-s SINGULARITY_IMAGE] [--num-threads NUM_THREADS] [-e EMAIL]
+diann-analysis create-lib -r ROOT_PATH -m MEMORY -f FASTA_FILE_PATH -p PARAMS [-n LIB_NAME] [-o OUTPUT_PATH] [-t TEMP_DIRECTORY] [-d OUTPUT_DIRECTORY] [-s SINGULARITY_IMAGE] [--num-threads NUM_THREADS] [-e EMAIL]
 ```
 
 **Arguments:**
 
 *   `-r, --root ROOT_PATH`: Set the working (root) directory (default: `/rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui`).
-*   `-m, --memory MEMORY`: Minimal memory required in MB (default: 100).
 *   `-f, --fasta FASTA_FILE_PATH`: FASTA file path relative to root (required).
-*   `-n, --lib-name LIB_NAME`: Library name identifier for the generated library (required).
+*   `-n, --lib-name LIB_NAME`: Library name identifier for the generated library (optional). If provided, the final name will be the fasta name + the lib_name. If not provided, only the fasta name will be used.
 *   `-p, --params PARAMS`: DIA-NN spectrum library search parameters (required).
+*   `-m, --memory MEMORY`: Minimal memory required in MB (default: 100).
 *   `-o, --output OUTPUT_PATH`: Output path relative to root for the generated LSF job file (default: `diann/tasks`).
 *   `-t, --temp-directory TEMP_DIRECTORY`: Temporary directory path (default: `DIANN_Testing/temp`).
 *   `-d, --output-directory OUTPUT_DIRECTORY`: Output directory for library generation (default: `DIANN_Testing/output/library_generation`).
@@ -51,13 +51,19 @@ diann-analysis create-lib -r ROOT_PATH -m MEMORY -f FASTA_FILE_PATH -n LIB_NAME 
 **Example:**
 
 ```bash
-diann-analysis create-lib -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/library/UNIPROT_human_revi_2024_12_19_ProteinAG.fasta -n citrullination -p "--min-fr-mz 200 --max-fr-mz 2000 --min-pep-len 7 --max-pep-len 52 --min-pr-mz 200 --max-pr-mz 2000 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 --unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --mass-acc 10 --mass-acc-ms1 15 --relaxed-prot-inf --rt-profiling --var-mod Citrullination,0.984016,R"
+diann-analysis create-lib -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/library/Cryptodatabase_UNIPROT2505_Human.fasta -p "--min-fr-mz 200 --max-fr-mz 2000 --min-pep-len 7 --max-pep-len 52 --min-pr-mz 200 --max-pr-mz 2000 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 --unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --mass-acc 10 --mass-acc-ms1 15 --relaxed-prot-inf --rt-profiling" -o DIANN_Testing/task/library_generation -e [YOUR-EMAIL]
 ```
 
-**example2**
+check logs in for potential errors 
+```
+DIANN_Testing/output/library_generation/Cryptodatabase_UNIPROT2505_Human_Cryptodatabase_UNIPROT2505_Human/std_out.txt
+```
+
+**Example 2:**
 
 ```bash
-diann-analysis create-job -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/data/PLCO -l DIANN_Testing/library/Cryptodatabase_UNIPROT2505_Human_Cryptodatabase_UNIPROT2505_Human_report-lib.predicted.speclib -p "--min-fr-mz 200 --max-fr-mz 2000 --min-pep-len 7 --max-pep-len 52 --min-pr-mz 200 --max-pr-mz 2000 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 --unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --mass-acc 10 --mass-acc-ms1 15 --relaxed-prot-inf --rt-profiling"
+# citrullination
+diann-analysis create-lib -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/library/UNIPROT_human_revi_2024_12_19_ProteinAG.fasta -n citrullination -p "--min-fr-mz 200 --max-fr-mz 2000 --min-pep-len 7 --max-pep-len 52 --min-pr-mz 200 --max-pr-mz 2000 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 --unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --mass-acc 10 --mass-acc-ms1 15 --relaxed-prot-inf --rt-profiling --var-mod Citrullination,0.984016,R"
 ```
 
 ### 2. Creating Jobs for .d Files
@@ -67,7 +73,7 @@ The `diann-analysis create-job` command creates task files for each `.d` file in
 **Command Syntax:**
 
 ```bash
-diann-analysis create-job -f FILE_FOLDER -l LIBRARY -p PTM_PARAMS [-r ROOT] [-m MIN_MEMORY] [-q QUEUE] [-n THREADS] [-M MAX_MEMORY] [-W WALL_TIME] [-v QVALUE] [-o OUTPUT_NAME] [-s SINGULARITY_IMAGE] [-t TEMP_DIR] [-e EMAIL]
+diann-analysis create-job -f FILE_FOLDER -l LIBRARY -p PTM_PARAMS [-r ROOT] [-m MIN_MEMORY] [-q QUEUE] [-n THREADS] [-M MAX_MEMORY] [-W WALL_TIME] [-v QVALUE] [-o OUTPUT_NAME] [-s SINGULARITY_IMAGE] [-t TEMP_DIR] [-e EMAIL] [-T TASKS_DIR]
 ```
 
 **Arguments:**
@@ -86,6 +92,7 @@ diann-analysis create-job -f FILE_FOLDER -l LIBRARY -p PTM_PARAMS [-r ROOT] [-m 
 *   `-s, --singularity-image SINGULARITY_IMAGE`: Singularity image path (default: `diann/diann-1.9.2.img`).
 *   `-t, --temp-dir TEMP_DIR`: Temporary directory (default: `DIANN_Testing/temp`).
 *   `-e, --email EMAIL`: Email address for job notifications (default: `cgu3@mdanderson.org`).
+*   `-T, --tasks-dir TASKS_DIR`: Tasks directory path (default: `DIANN_Testing/tasks`).
 
 To get detailed information about each argument, run:
 
@@ -95,10 +102,10 @@ diann-analysis create-job --help
 
 **Task File Structure:**
 
-The task files are organized as follows:
+The task files are organized as follows (using the default tasks directory `DIANN_Testing/tasks`, which can be customized with `--tasks-dir`):
 
 ```
-- diann/tasks
+- TASKS_DIR (default: DIANN_Testing/tasks)
     ├── DATA_FOLDER_NAME or OUTPUT_NAME
     │   ├── PTM_SEARCHING_LIBRARY
     │   │   ├── INDIVIDUAL_TASK_OF_DATA_FILE_1.lsf
@@ -108,13 +115,26 @@ The task files are organized as follows:
 
 **Output Structure:**
 
-DIA-NN results will be saved in `DIANN_Testing/output` with a structure mirroring the task file structure, making it easy to identify the source data, library, and raw file for each result.
+DIA-NN results will be saved in `DIANN_Testing/output` by default but can be override by setting **-T**,and with a structure mirroring the task file structure, making it easy to identify the source data, library, and raw file for each result.
 
 **Example:**
 
+
 ```bash
-diann-analysis create-job -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/data/RAINBOW -l DIANN_Testing/library/UNIPROT_human_revi_2024_12_19_ProteinAG_citrullination_report-lib -p "--min-fr-mz 200 --max-fr-mz 2000 --min-pep-len 7 --max-pep-len 52 --min-pr-mz 200 --max-pr-mz 2000 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 --unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --mass-acc 10 --mass-acc-ms1 15 --relaxed-prot-inf --rt-profiling --var-mod Citrullination,0.984016,R"
+diann-analysis create-job -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/data/PLCO -l DIANN_Testing/library/Cryptodatabase_UNIPROT2505_Human_report-lib.predicted.speclib -p "--min-fr-mz 200 --max-fr-mz 2000 --min-pep-len 7 --max-pep-len 52 --min-pr-mz 200 --max-pr-mz 2000 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 --unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --mass-acc 10 --mass-acc-ms1 15 --relaxed-prot-inf --rt-profiling" -T DIANN_Testing/tasks
 ```
+
+
+**Example 2**
+```bash
+diann-analysis create-job -r /rsrch5/scratch/ccp/hanash/Hanash_GPFS/Chunhui -m 100 -f DIANN_Testing/data/$folder_name -l DIANN_Testing/library/UNIPROT_human_revi_2024_12_19_ProteinAG_deoxyhypusine_report-lib -p "--min-fr-mz 200 --max-fr-mz 2000 --min-pep-len 7 --max-pep-len 52 --min-pr-mz 200 --max-pr-mz 2000 --min-pr-charge 2 --max-pr-charge 6 --cut K*,R* --missed-cleavages 2 --unimod4 --var-mods 5 --var-mod UniMod:35,15.994915,M --mass-acc 10 --mass-acc-ms1 15 --relaxed-prot-inf --rt-profiling --var-mod Deoxyhypusine,71.073499,K"
+```
+
+check log in for errors for each task
+```
+DIANN_Testing/output/RAINBOW/UNIPROT_human_revi_2024_12_19_ProteinAG_citrullination_report-lib/IPAS8000_PL375_FT_MCED_1_S4-A1_1_346/std_out.txt
+```
+
 
 ### 3. Running Batch Jobs
 
@@ -130,12 +150,12 @@ diann-analysis run-batch LSF_DIRECTORY
 
 *   `LSF_DIRECTORY`: Directory containing the `.lsf` files to submit (required positional argument).
 
-Replace `LSF_DIRECTORY` with the path to the lowest-level task folder (the one containing the individual `.lsf` task files, not other folders).
+Replace `LSF_DIRECTORY` with the path to the lowest-level task folder (the one containing the individual `.lsf` task files, not other folders). The path will be within your configured tasks directory (default: `DIANN_Testing/tasks`).
 
 **Example:**
 
 ```bash
-diann-analysis run-batch diann/tasks/RAINBOW/UNIPROT_human_revi_2024_12_19_ProteinAG_citrullination_report-lib
+diann-analysis run-batch DIANN_Testing/tasks/PLCO/Cryptodatabase_UNIPROT2505_Human_report-lib.predicted.speclib
 ```
 
 ### 4. Merging Results
@@ -159,7 +179,7 @@ diann-analysis merge INPUT_DIR OUTPUT_DIR [-f|--full] [-v|--verbose] [--parquet]
 **Example:**
 
 ```bash
-diann-analysis merge DIANN_Testing/output/RAINBOW/library_results ./merged_results --full --parquet
+diann-analysis merge DIANN_Testing/output/RAINBOW/UNIPROT_human_revi_2024_12_19_ProteinAG_citrullination_report-lib ./merged --full --parquet
 ```
 
 ## Command Reference
@@ -180,7 +200,11 @@ Here's a complete workflow example:
 
 1. **Create a spectral library:**
    ```bash
+   # With custom library name
    diann-analysis create-lib -f DIANN_Testing/library/protein.fasta -n phosphorylation -p "--var-mod UniMod:21,79.966331,STY"
+   
+   # Or without custom name (uses only FASTA name)
+   diann-analysis create-lib -f DIANN_Testing/library/protein.fasta -p "--var-mod UniMod:21,79.966331,STY"
    ```
 
 2. **Create job files for your data:**
@@ -190,7 +214,7 @@ Here's a complete workflow example:
 
 3. **Submit the jobs:**
    ```bash
-   diann-analysis run-batch diann/tasks/experiment1/protein_phosphorylation_report-lib
+   diann-analysis run-batch DIANN_Testing/tasks/experiment1/protein_phosphorylation_report-lib
    ```
 
 4. **Merge the results:**

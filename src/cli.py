@@ -33,9 +33,10 @@ def cli():
 @click.option("-s", "--singularity-image", default="diann/diann-1.9.2.img", help="Singularity image path")
 @click.option("-t", "--temp-dir", default="DIANN_Testing/temp", help="Temporary directory")
 @click.option("-e", "--email", default="cgu3@mdanderson.org", help="Email address for job notifications")
-def create_job(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name, singularity_image, temp_dir, email):
+@click.option("-T", "--tasks-dir", default="DIANN_Testing/tasks", help="Tasks directory path")
+def create_job(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name, singularity_image, temp_dir, email, tasks_dir):
     """Generate DIA-NN job scripts for spectrum data processing."""
-    create_job_main(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name, singularity_image, temp_dir, email)
+    create_job_main(file_folder, library, ptm_params, root, min_memory, queue, threads, max_memory, wall_time, qvalue, output_name, singularity_image, temp_dir, email, tasks_dir)
 
 
 @cli.command("create-lib")
@@ -45,8 +46,8 @@ def create_job(file_folder, library, ptm_params, root, min_memory, queue, thread
               help="Minimal memory required (e.g., 100)")
 @click.option("-f", "--fasta", required=True, 
               help="FASTA file path relative to root")
-@click.option("-n", "--lib-name", required=True, 
-              help="Library name. The identifier given to the generated library.")
+@click.option("-n", "--lib-name", default="", 
+              help="Library name. The identifier given to the generated library. If provided, the final name will be the fasta name + the lib_name. If not provided, only the fasta name will be used.")
 @click.option("-p", "--params", required=True, 
               help="DIANN spectrum library search parameters.")
 @click.option("-o", "--output", default="diann/tasks", 

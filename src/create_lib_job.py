@@ -33,7 +33,12 @@ def main(root, memory, fasta, lib_name, params, output, temp_directory, output_d
     # Derive names
     basename = os.path.basename(fasta_file)
     fasta_name = os.path.splitext(basename)[0]
-    task_name = f"{fasta_name}_{library_name}"
+    
+    # Create task name - if lib_name is empty, just use fasta_name
+    if library_name:
+        task_name = f"{fasta_name}_{library_name}"
+    else:
+        task_name = fasta_name
     output_sub_dir = os.path.join(output_directory, task_name)
     temp_sub_dir = os.path.join(temp_directory, task_name)
 
@@ -86,8 +91,8 @@ singularity exec --bind "{working_directory}:/mnt" "{singularity_image}" /diann-
               help="Minimal memory required (e.g., 100)")
 @click.option("-f", "--fasta", required=True, 
               help="FASTA file path relative to root")
-@click.option("-n", "--lib-name", required=True, 
-              help="Library name. The identifier given to the generated library. You should make it self-descriptive to indicate which fasta it used and what notable search parameters used. The final name will be the fasta name + the lib_name")
+@click.option("-n", "--lib-name", default="", 
+              help="Library name. The identifier given to the generated library. You should make it self-descriptive to indicate which fasta it used and what notable search parameters used. If provided, the final name will be the fasta name + the lib_name. If not provided, only the fasta name will be used.")
 @click.option("-p", "--params", required=True, 
               help="DIANN spectrum library search parameters. Only the searching parameters related to peptides are required. Other parameters are set to parameters suitable for most setting. However you can always override those settings here")
 @click.option("-o", "--output", default="diann/tasks", 
